@@ -7,15 +7,15 @@ from torch.utils.data import random_split
 from torchvision import transforms
 import os
 from model import ResNet101_net
+from torch.utils.data import Dataset, DataLoader
+import pandas as pd
+from PIL import Image
 
 
 data_dir = 'F:/PycharmProject/pythonProject6/train'
 csv_file = 'F:/PycharmProject/pythonProject6/trainLabels.csv'
 
-from torch.utils.data import Dataset, DataLoader
-import pandas as pd
-from PIL import Image
-
+# 自定义的数据加载器
 class CustomDataset(Dataset):
     def __init__(self, root_dir, csv_file, transform=None):
         self.root_dir = root_dir
@@ -33,10 +33,10 @@ class CustomDataset(Dataset):
         if self.transform:
             image = self.transform(image)
         label = self.class_to_idx[self.data_info.iloc[idx, 1]]  # 获取标签
-        # print(idx,label,img_name)
         return image, label
 
 
+# 创建图片变化形式
 data_transform = torchvision.transforms.Compose([
     torchvision.transforms.RandomResizedCrop(40, scale=(0.64, 1.0), ratio=(1.0, 1.0)),
     transforms.RandomRotation(degrees=(-45, 45)),  # 在[-45, 45]度范围内随机旋转图像
@@ -53,54 +53,56 @@ data_transform2 = torchvision.transforms.Compose([
     torchvision.transforms.Normalize([0.485, 0.456, 0.406],
                                      [0.229, 0.224, 0.225])
 ])
-# 创建自定义数据集实例
+
+
+# 创建自定义数据集实例，将数据集加载进入
 custom_dataset = CustomDataset(root_dir=data_dir, csv_file=csv_file, transform=data_transform)
 custom_dataset2 = CustomDataset(root_dir=data_dir, csv_file=csv_file,transform=data_transform2)
-# # 计算划分后的训练集和验证集的大小
+
+# 将数据集拆分
 total_size = len(custom_dataset)
 train_size = int(0.99 * total_size)
 valid_size = total_size - train_size
-#+-
-# # 使用 random_split 函数划分数据集
 train_dataset, valid_dataset = random_split(custom_dataset2, [train_size, valid_size])
-# 创建自定义数据集实例
 
 
-# # 创建数据加载器
+
+#创建数据加载器
 train_loader = DataLoader(custom_dataset, batch_size=32, shuffle=True)
-
 valid_loader = DataLoader(valid_dataset, batch_size=32, shuffle=False)
 
-
-
-
+#定义模型，这里加载模型是多次训练，我先注释掉
 model =  ResNet101_net()
 # model.load_state_dict(torch.load('resnet101_model_final_dropout2_layer3.pth'))
 
 
-# 将模型设置为训练模式
+# 将模型设置为训练模式并打印观察模型结构
 model.train()
 print(model)
 
+# 将代码放入GPU上运行
 use_gpu = torch.cuda.is_available()
 if use_gpu:
     model = model.cuda()
 
+# 使用交叉熵损失函数
 loss_f = torch.nn.CrossEntropyLoss()
+
+# 使用SGD优化器同时进行学习率梯度衰减
 parm = model.parameters()
 optimizer = SGD(parm,lr=0.0014, momentum=0.857142,
                                  weight_decay=0.000857142, nesterov=False)
-
 scheduler = StepLR(optimizer, step_size=4, gamma=0.95142)#更新学习率
 
 
+# Train函数进行训练
 def train(epoch_n = 150):
     for epoch in range(epoch_n):
         print('epoch {}/{}'.format(epoch, epoch_n - 1))
         print('-' * 10)
         scheduler.step()  # 更新学习率
 
-    # 获取当前学习率
+        # 获取当前学习率并且打印
         current_lr = scheduler.get_last_lr()[0]
         print(f'Epoch [{epoch}/{epoch_n - 1}], Current Learning Rate: {current_lr}')
         for phase in ['train', 'valid']:
@@ -145,7 +147,7 @@ def train(epoch_n = 150):
 
 
 
-
+# 主函数入口
 if __name__ == '__main__':
     train()
 

@@ -1,14 +1,13 @@
 import csv
 import os
-
 import torch
 import torchvision
 from PIL import Image
-import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
-
 from model import ResNet101_net
 
+
+# 定义标签，用来生成csv文件
 cifar10_labels = {
     0: 'airplane',
     1: 'automobile',
@@ -34,6 +33,8 @@ test_transform = torchvision.transforms.Compose([
     ])
 
 
+
+# 自定义数据集加载
 class CustomDataset(Dataset):
     def __init__(self, folder, transform=None):
         self.folder = folder
@@ -54,23 +55,24 @@ class CustomDataset(Dataset):
     # 创建Dataset和DataLoader
 
 
+
+# 这里写的是文件存储路径和预测批次大小
+# 注意这个test_floder要根据自己数据集路径进行填写
 test_folder = 'F:/PycharmProject/fishdetect2/test'
 test_dataset = CustomDataset(test_folder, transform=test_transform)
 test_loader = DataLoader(test_dataset, batch_size=512, shuffle=False)
 
 
-
+# 模型加载并且设置为评估模式
 model = ResNet101_net()
-# 模型设置为评估模式
-
 model.load_state_dict(torch.load('resnet101_model_final_dropout2_layer3.pth'))
 model.eval()
-
-
 use_gpu = torch.cuda.is_available()
 if use_gpu:
     model = model.cuda()
 
+
+# 预测
 predictions = []
 with torch.no_grad():
     for images, filenames in test_loader:
