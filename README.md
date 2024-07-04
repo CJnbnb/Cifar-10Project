@@ -22,6 +22,9 @@
 准确率：
 - 本项目提交kaggle准确率有95.7%
 
+Kaggle比赛地址：
+-https://www.kaggle.com/competitions/cifar-10/submissions
+
 权重文件地址：
 - 百度网盘链接：https://pan.baidu.com/s/1QyJTUsI4KOnAf2X7SSeadw 
 提取码：pz88
