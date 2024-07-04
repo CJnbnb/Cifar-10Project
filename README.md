@@ -1,6 +1,10 @@
 # 项目名称 Cifar-10图片分类问题
 
-注意：代码中Train和Commitresult两处在本地运行的时候要用本地数据集保存的路径，代码中已标明，请注意查看
+注意：代码中Train和Commitresult两处在本地运行的时候要用本地数据集保存的路径
+Train中的
+- data_dir = 'F:/PycharmProject/pythonProject6/train'
+- csv_file = 'F:/PycharmProject/pythonProject6/trainLabels.csv'
+改成自己的数据集、标签所在位置即可
 
 库依赖：
 - torch
