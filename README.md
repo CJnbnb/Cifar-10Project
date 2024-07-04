@@ -4,8 +4,7 @@
 Train中的
 - data_dir = 'F:/PycharmProject/pythonProject6/train'
 - csv_file = 'F:/PycharmProject/pythonProject6/trainLabels.csv'
-改成自己的数据集、标签所在位置即可
-在Commitresult也是如此即可
+改成自己的数据集、标签所在位置即可。在Commitresult也是如此更改
 
 库依赖：
 - torch
